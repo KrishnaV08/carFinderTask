@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
+import ToggleOn from "@mui/icons-material/ToggleOn";
+import ToggleOff from "@mui/icons-material/ToggleOff";
+
 import {
   Box,
   Container,
@@ -19,6 +23,19 @@ const App = () => {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [darkMode, setDarkMode] = useState(false);
+
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev);
+  };
+
+  const theme = createTheme({
+    palette: {
+      mode: darkMode ? "dark" : "light",
+    },
+  });
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -93,92 +110,101 @@ const App = () => {
     : "No cars found.";
 
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        Car Finder App 🚗
-      </Typography>
+    <ThemeProvider theme={theme}>
+      <CssBaseline/>
+      <Container>
+        <Typography variant="h4" gutterBottom>
+          Car Finder App 🚗
+        </Typography>
 
-      <Button
-        variant="contained"
-        onClick={() => setShowWishlist((prev) => !prev)}
-        sx={{ mb: 2 }}
-      >
-        {showWishlist ? "Back to Search" : "View Wishlist ❤️"}
-      </Button>
-      {showWishlist && wishlist.length!==0? (
         <Button
           variant="contained"
-          onClick={() => setWishlist([])
-          }
-          sx={{ mb: 2, marginLeft: 2 }}
+          onClick={() => setShowWishlist((prev) => !prev)}
+          sx={{ mb: 2 }}
         >
-          Clear Wishlist
+          {showWishlist ? "Back to Search" : "View Wishlist ❤️"}
         </Button>
-      ) : (
-        <></>
-      )}
-
-      {!showWishlist && <Filters filters={filters} setFilters={setFilters} />}
-
-      {loading ? (
-        <CircularProgress />
-      ) : (
-        <Box
-          display="grid"
-          gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
-          gap={2}
-          justifyContent="center"
+        <Button
+          variant="outlined"
+          onClick={toggleDarkMode}
+          sx={{ mb: 2 , marginLeft:2}}
+          startIcon={darkMode ? <ToggleOn /> : <ToggleOff />}
         >
-          {visibleCars.length === 0 ? (
-            <Typography
-              variant="h6"
-              mt={4}
-              textAlign="center"
-              color="text.secondary"
-            >
-              {noDataText}
-            </Typography>
-          ) : (
-            visibleCars.map((car) => (
-              <CarCard
-                key={car.id}
-                car={car}
-                toggleWishlist={toggleWishlist}
-                isInWishlist={isInWishlist}
-              />
-            ))
-          )}
-          <Button> </Button>
-        </Box>
-      )}
+          {darkMode ? "Light Mode" : "Dark Mode"}
+        </Button>
 
-      {!showWishlist && cars.length > carsPerPage && (
-        <Stack spacing={2} mt={4} alignItems="center">
-          <Pagination
-            count={Math.ceil(cars.length / carsPerPage)}
-            page={currentPage}
-            onChange={(e, value) => setCurrentPage(value)}
-            color="primary"
-          />
-        </Stack>
-      )}
+        {showWishlist && wishlist.length !== 0 && (
+          <Button
+            variant="contained"
+            onClick={() => setWishlist([])}
+            sx={{ mb: 2, marginLeft: 2 }}
+          >
+            Clear Wishlist
+          </Button>
+        ) }
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={2000}
-        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
+        {!showWishlist && <Filters filters={filters} setFilters={setFilters} />}
+
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          <Box
+            display="grid"
+            gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
+            gap={2}
+            justifyContent="center"
+          >
+            {visibleCars.length === 0 ? (
+              <Typography
+                variant="h6"
+                mt={4}
+                textAlign="center"
+                color="text.secondary"
+              >
+                {noDataText}
+              </Typography>
+            ) : (
+              visibleCars.map((car) => (
+                <CarCard
+                  key={car.id}
+                  car={car}
+                  toggleWishlist={toggleWishlist}
+                  isInWishlist={isInWishlist}
+                />
+              ))
+            )}
+            <Button> </Button>
+          </Box>
+        )}
+
+        {!showWishlist && cars.length > carsPerPage && (
+          <Stack spacing={2} mt={4} alignItems="center">
+            <Pagination
+              count={Math.ceil(cars.length / carsPerPage)}
+              page={currentPage}
+              onChange={(e, value) => setCurrentPage(value)}
+              color="primary"
+            />
+          </Stack>
+        )}
+
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={2000}
           onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Container>
+          <Alert
+            onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+            severity={snackbar.severity}
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Container>
+    </ThemeProvider>
   );
 };
 
